@@ -82,8 +82,6 @@ const bookmarkletfunc = () => {
 		ev.preventDefault();  // デフォルトの動作を止める。そうしないとクリップボードに元の値が入ってしまう。
 		ev.stopPropagation();  // これよりイベントの伝播を止める。
 	};
-	
-
 }
 //</script>
 //<a href="javascript:bookmarkletfunc();">ブックマークレットを実行</a>
