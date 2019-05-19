@@ -61,6 +61,9 @@ const bookmarkletfunc = () => {
 		refnode = tree.childNodes[1].childNodes[0].childNodes[0];  // テキストノードの前にファビコンを挿入する。
 		refnode.parentNode.insertBefore(createElem("img", {"alt": "", "src": "https://www.google.com/s2/favicons?domain={}".replace("{}", ogp.domain)}), refnode);
 	}
+	document.addEventListener("copy", onCopy, true);  // targetは何でもよいので、capture phase、つまりドキュメントから行きの伝播を捉える。
+	document.execCommand("copy");   // コピーイベントを発生させる。
+	document.removeEventListener("copy", onCopy, true);  // リスナーの除去。
 	function getOGP(txt){document.evaluate("//meta[@property='og:{}']/@content".replace("{}", txt), document, null, XPathResult.STRING_TYPE, null).stringValue}
 	function createElem(tag, props, txt){
 			let elem = document.createElement(tag)
@@ -72,20 +75,15 @@ const bookmarkletfunc = () => {
 		curr.appendChild(prev);  // 子要素prevが返ってしまう。
 		return curr  // 親要素を返す。
 	})}
+	function onCopy(ev) {  // イベントリスナー。	
+		html = tree.outerHTML;
+		ev.clipboardData.setData("text/plain", html);  // textとしてペーストするとき。必須。これがないとクリップボードに何も渡されない。
+		ev.clipboardData.setData("text/html", html);  // htmlとしてペーストするとき。
+		ev.preventDefault();  // デフォルトの動作を止める。そうしないとクリップボードに元の値が入ってしまう。
+		ev.stopPropagation();  // これよりイベントの伝播を止める。
+	};
 	
-	function copyTextToClipboard(txt) {
-		let txtarea = createElem("textarea", {}, txt);
-		let bodyelem = document.getElementsByTagName("body")[0];
-		bodyelem.appendChild(txtarea);
-		txtarea.select();
-		document.execCommand('copy');
-		bodyelem.removeChild(txtarea);
-		
-	}
-	
-	copyTextToClipboard(tree.outerHTML)
-	
-//	prompt('作成されたHTMLをコピーしてください', tree.outerHTML);
+
 }
 //</script>
 //<a href="javascript:bookmarkletfunc();">ブックマークレットを実行</a>
