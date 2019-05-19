@@ -1,40 +1,66 @@
-<script>
-let bookmarkletfunc = () => {
-	let ogp = {
-		title: getOGP("title"),
-		img: getOGP("image"), 	
-		desp: getOGP("description"), 	
-		url: document.URL,
-		domain: location.host
-	};
-	let tree = createElem("div", {"class": "blogcard"});
-	appendNodes([
-		tree, 
-		createElem("div", {"class": "blogcard-content"}),
-		createElem("div", {"class": "blogcard-image"}),
-		createElem("div", {"class": "blogcard-image-wrapper"}),
-		createElem("a", {"href": ogp.url, "target": "_blank"}),
-		createElem("img", {"alt": "", "src": ogp.img})		
-	]); 
-	appendNodes([
-		tree.childNodes[0], 
-		createElem("div", {"class": "blogcard-text"}),
-		createElem("div", {"class": "blogcard-title"}),
-		createElem("a", {"href": ogp.url, "target": "_blank"}, ogp.title)
-	]);  
-	appendNodes([
-		tree.childNodes[0].childNodes[1], 
-		createElem("blockquote", {"cite": ogp.url}),
-		createElem("div", {"class": "blogcard-description"}, ogp.desp)
-	]);  
-	appendNodes([
-		tree, 
-		createElem("div", {"class": "blogcard-footer"}),
-		createElem("a", {"href": ogp.url, "target": "_blank"}, ogp.domain),
-	]);		
-	refnode = tree.childNodes[1].childNodes[0].childNodes[0];  // テキストノードの前にファビコンを挿入する。
-	refnode.parentNode.insertBefore(createElem("img", {"alt": "", "src": "https://www.google.com/s2/favicons?domain={}".replace("{}", ogp.domain)}), refnode);
-	prompt('作成されたHTMLをコピーしてください', tree.outerHTML);
+//<script>
+const bookmarkletfunc = () => {
+	let tree
+	let txt = window.getSelection().toString();  // 選択文字列を取得。
+	if (txt) {  // 選択文字列があるときはただのリンクコピーにする。
+		tree = createElem("a", {"href": document.URL, "target": "_blank"}, txt)
+	} else {
+		const mydomain = "p--q.blogspot.com";
+		let ogp = {
+			title: getOGP("title") || document.title,
+			img: getOGP("image"), 	
+			desp: getOGP("description"), 	
+			url: document.URL,
+			domain: location.host
+		};  // OGP設定がないときはページタイトルを取得する。
+		if (ogp.img) { // OGP画像のurlが取得できたとき。
+			if (ogp.img.startsWith("/")) {  // ドメインがないときは修正する。
+				ogp.img = location.protocol + "//" + ogp.domain + ogp.img;
+			}
+			tree = createElem("div", {"class": "blogcard"});
+			appendNodes([
+				tree, 
+				createElem("div", {"class": "blogcard-content"}),
+				createElem("div", {"class": "blogcard-image"}),
+				createElem("div", {"class": "blogcard-image-wrapper"}),
+				createElem("a", {"href": ogp.url, "target": "_blank"}),
+				createElem("img", {"alt": "", "height": "132", "width": "200", "src": ogp.img})		
+			]);  // サムネイル画像サイズは決め打ちしている。
+		} else {  // OGP画像がないとき。
+			tree = createElem("div", {"class": "blogcard blogcard-hasnoimage"});
+			appendNodes([
+				tree, 
+				createElem("div", {"class": "blogcard-content"}),	
+			]);  
+		}
+		appendNodes([
+			tree.childNodes[0], 
+			createElem("div", {"class": "blogcard-text"}),
+			createElem("div", {"class": "blogcard-title"}),
+			createElem("a", {"href": ogp.url, "target": "_blank"}, ogp.title)
+		]);  
+		if (ogp.desp) {  // OGPサマリが取得できたとき。
+			if (ogp.domain==maydomain) {  // 自分のドメインからの引用には引用符を挿入しない。
+				appendNodes([
+					tree.childNodes[0].childNodes[1], 
+					createElem("div", {"class": "blogcard-description"}, ogp.desp)
+				]);  			
+			} else {
+				appendNodes([
+					tree.childNodes[0].childNodes[1], 
+					createElem("blockquote", {"cite": ogp.url}),
+					createElem("div", {"class": "blogcard-description"}, ogp.desp)
+				]);  		
+			}
+		}
+		appendNodes([
+			tree, 
+			createElem("div", {"class": "blogcard-footer"}),
+			createElem("a", {"href": ogp.url, "target": "_blank"}, ogp.domain),
+		]);		
+		refnode = tree.childNodes[1].childNodes[0].childNodes[0];  // テキストノードの前にファビコンを挿入する。
+		refnode.parentNode.insertBefore(createElem("img", {"alt": "", "src": "https://www.google.com/s2/favicons?domain={}".replace("{}", ogp.domain)}), refnode);
+	}
 	function getOGP(txt){document.evaluate("//meta[@property='og:{}']/@content".replace("{}", txt), document, null, XPathResult.STRING_TYPE, null).stringValue}
 	function createElem(tag, props, txt){
 			let elem = document.createElement(tag)
@@ -46,9 +72,23 @@ let bookmarkletfunc = () => {
 		curr.appendChild(prev);  // 子要素prevが返ってしまう。
 		return curr  // 親要素を返す。
 	})}
+	
+	function copyTextToClipboard(txt) {
+		let txtarea = createElem("textarea", {}, txt);
+		let bodyelem = document.getElementsByTagName("body")[0];
+		bodyelem.appendChild(txtarea);
+		txtarea.select();
+		document.execCommand('copy');
+		bodyelem.removeChild(txtarea);
+		
+	}
+	
+	copyTextToClipboard(tree.outerHTML)
+	
+//	prompt('作成されたHTMLをコピーしてください', tree.outerHTML);
 }
-</script>
-<a href="javascript:bookmarkletfunc();">ブックマークレットを実行</a>
+//</script>
+//<a href="javascript:bookmarkletfunc();">ブックマークレットを実行</a>
 
 
 
