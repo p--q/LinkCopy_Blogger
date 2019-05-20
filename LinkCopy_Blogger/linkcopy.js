@@ -50,37 +50,36 @@ const bookmarkletfunc = () => {
 		elem.parentNode.insertBefore(elem.firstElementChild, elem);  // <blockquote>の子要素を親要素に付け替える。
 		elem.parentNode.removeChild(elem);  // <blockquote></blockquote>を削除。
 	}
-}
-document.addEventListener("copy", onCopy, true);  // targetは何でもよいので、capture phase、つまりドキュメントから行きの伝播を捉える。
-document.execCommand("copy");   // コピーイベントを発生させる。
-document.removeEventListener("copy", onCopy, true);  // リスナーの除去。
-function getOGP(txt){return document.evaluate("//meta[@property='og:{}']/@content".replace("{}", txt), document, null, XPathResult.STRING_TYPE, null).stringValue;}
-function createElem(tag, props, txt){  // タグ名、プロパティの辞書、テキストノードにするテキスト。
-	let elem = document.createElement(tag);  // 要素を作成。
-	Object.keys(props).forEach(k => elem.setAttribute(k, props[k]));  // 要素のプロパティを設定。				
-	txt && elem.appendChild(createTxtNode(txt));  // テキストノードがあれば挿入。		
-	return elem;  // 要素を返す。
-}
-function createTxtNode(txt){return document.createTextNode(txt);}  // テキストノードを返す。
-function createTree(nodes){  // ノードの配列を受け取って、再帰的に子要素にしてツリーにして返す。
-	return nodes.reverse().reduce((prev, curr) => {
-		if (Array.isArray(prev)){  // 配列のときはまずツリーにする。
-			prev = createTree(prev);
-		} 			
-		if (Array.isArray(curr)){  // 配列のときはまずツリーにする。
-			curr = createTree(curr);
-		} 					
-		curr.appendChild(prev);  // このまま返すと子要素prevが返ってしまう。
-		return curr;  // 親要素を返す。
-		 }); 	
-}
-function onCopy(ev) {  // イベントリスナー。	
-	html = root.outerHTML;  // ツリーをHTML文字列に変換する。
-	ev.clipboardData.setData("text/plain", html);  // textとしてペーストするとき。必須。これがないとクリップボードに何も渡されない。
-	ev.clipboardData.setData("text/html", html);  // htmlとしてペーストするとき。
-	ev.preventDefault();  // デフォルトの動作を止める。そうしないとクリップボードに元の値が入ってしまう。
-	ev.stopPropagation();  // これよりイベントの伝播を止める。
+	document.addEventListener("copy", onCopy, true);  // targetは何でもよいので、capture phase、つまりドキュメントから行きの伝播を捉える。
+	document.execCommand("copy");   // コピーイベントを発生させる。
+	document.removeEventListener("copy", onCopy, true);  // リスナーの除去。
+	function getOGP(txt){return document.evaluate("//meta[@property='og:{}']/@content".replace("{}", txt), document, null, XPathResult.STRING_TYPE, null).stringValue;}
+	function createElem(tag, props, txt){  // タグ名、プロパティの辞書、テキストノードにするテキスト。
+		let elem = document.createElement(tag);  // 要素を作成。
+		Object.keys(props).forEach(k => elem.setAttribute(k, props[k]));  // 要素のプロパティを設定。				
+		txt && elem.appendChild(createTxtNode(txt));  // テキストノードがあれば挿入。		
+		return elem;  // 要素を返す。
+	}
+	function createTxtNode(txt){return document.createTextNode(txt);}  // テキストノードを返す。
+	function createTree(nodes){  // ノードの配列を受け取って、再帰的に子要素にしてツリーにして返す。
+		return nodes.reverse().reduce((prev, curr) => {
+			if (Array.isArray(prev)){  // 配列のときはまずツリーにする。
+				prev = createTree(prev);
+			} 			
+			if (Array.isArray(curr)){  // 配列のときはまずツリーにする。
+				curr = createTree(curr);
+			} 					
+			curr.appendChild(prev);  // このまま返すと子要素prevが返ってしまう。
+			return curr;  // 親要素を返す。
+			 }); 	
+	}
+	function onCopy(ev) {  // イベントリスナー。	
+		html = root.outerHTML;  // ツリーをHTML文字列に変換する。
+		ev.clipboardData.setData("text/plain", html);  // textとしてペーストするとき。必須。これがないとクリップボードに何も渡されない。
+		ev.clipboardData.setData("text/html", html);  // htmlとしてペーストするとき。
+		ev.preventDefault();  // デフォルトの動作を止める。そうしないとクリップボードに元の値が入ってしまう。
+		ev.stopPropagation();  // これよりイベントの伝播を止める。
+	}
 };
-//}
 //</script>
 //<a href="javascript:bookmarkletfunc();">ブックマークレットを実行</a>
