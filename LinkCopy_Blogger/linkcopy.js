@@ -32,8 +32,9 @@ const bookmarkletfunc = () => {
 					],								
 					[createElem("div", {"class": "blogcard-footer"}),
 						createElem("a", {"href": ogp.domain, "target": "_blank"}),
-							[createElem("img", {"alt": "", "src": "https://www.google.com/s2/favicons?domain={}".replace("{}", ogp.domain)}),
-								createTxtNode(ogp.domain)
+							[createElem("img", {"alt": "", "src": "https://www.google.com/s2/favicons?domain={}".replace("{}", ogp.domain)})
+							],
+							[createTxtNode(ogp.domain)
 							]
 					]
 			])  // ルートノードから始まる、ツリーにするノードの配列。サムネイル画像サイズは決め打ちしている。
