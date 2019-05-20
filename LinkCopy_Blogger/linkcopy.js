@@ -58,22 +58,17 @@ const bookmarkletfunc = () => {
 		return elem;  // 要素を返す。
 	}
 	function createTxtNode(txt){return document.createTextNode(txt);}  // テキストノードを返す。
-	function createTree(elems){
-		
-		
-		elems.reverse().forEach(e =>{
-			if (Array.isArray(e)){
-				
-				createTree(e);
-				
-				
-			} else {
-				return e.reduce((prev, curr) => {
-					  curr.appendChild(prev);  // 子要素prevが返ってしまう。
-					  return curr;  // 親要素を返す。
-					 });  // 親要素を返す。	
-			}
-		});
+	function createTree(nodes){
+		return nodes.reverse().reduce((prev, curr) => {
+			if (Array.isArray(prev)){
+				prev = createTree(prev);
+			} 			
+			if (Array.isArray(curr)){
+				curr = createTree(curr);
+			} 					
+			curr.appendChild(prev);  // このまま返すと子要素prevが返ってしまう。
+			return curr;  // 親要素を返す。
+			 }); 	
 	}
 	function onCopy(ev) {  // イベントリスナー。	
 		html = root.outerHTML;
