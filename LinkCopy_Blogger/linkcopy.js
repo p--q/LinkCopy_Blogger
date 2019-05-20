@@ -39,14 +39,14 @@ const bookmarkletfunc = () => {
 			])  // ルートノードから始まる、ツリーにするノードの配列。サムネイル画像サイズは決め打ちしている。
 	if (!ogp.img) { // OGP画像ないとき。		
 		root.classList.add("blogcard-hasnoimage");  // ルートノードのクラス名を追加。
-		elem = document.evaluate("//div[@class='blogcard-image']", root, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+		elem = document.evaluate("//div[@class='blogcard-image']", root, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue ;
 		elem.parentNode.removeChild(elem);  // <div class='blogcard-image'></div>を削除。
 	}	
 	if (selectedtxt || !ogp.desp) {  // 選択文字列があるとき、または、OGPサマリがないとき。
-		elem = document.evaluate("//blockquote", root, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+		elem = document.evaluate("//blockquote", root, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue ;
 		elem.parentNode.removeChild(elem);  // <blockquote></blockquote>を削除。
 	} else if (ogp.domain==mydomain) {  // 自分のドメインのときは引用符のみ削除。			
-		elem = document.evaluate("//blockquote", root, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+		elem = document.evaluate("//blockquote", root, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue ;
 		elem.parentNode.insertBefore(elem.firstElementChild, elem);  // <blockquote>の子要素を親要素に付け替える。
 		elem.parentNode.removeChild(elem);  // <blockquote></blockquote>を削除。
 	}
