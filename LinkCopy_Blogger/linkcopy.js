@@ -14,30 +14,26 @@ const bookmarkletfunc = () => {
 		ogp.img = location.protocol + "//" + ogp.domain + ogp.img;
 	}
 	let root = createTree([
-				createElem("div", {"class": "blogcard"}),
-					[createElem("div", {"class": "blogcard-content"}),
-						[createElem("div", {"class": "blogcard-text"}),
-							[createElem("div", {"class": "blogcard-title"}),
-								createElem("a", {"href": ogp.url, "target": "_blank"}, ogp.title)
+					[createElem("div", {"class": "blogcard"}),
+						[createElem("div", {"class": "blogcard-content"}),
+							[createElem("div", {"class": "blogcard-text"}),
+								createElem("div", {"class": "blogcard-title"}),
+									createElem("a", {"href": ogp.url, "target": "_blank"}, ogp.title)
 							],
-							[createElem("blockquote", {"cite": ogp.url}),
-								createElem("div", {"class": "blogcard-description"}, ogp.desp)
-							]
+								createElem("blockquote", {"cite": ogp.url}),
+									createElem("div", {"class": "blogcard-description"}, ogp.desp)
 						],
-						[createElem("div", {"class": "blogcard-image"}),
-							createElem("div", {"class": "blogcard-image-wrapper"}),
-								createElem("a", {"href": ogp.url, "target": "_blank"}),
-									createElem("img", {"alt": "", "height": "132", "width": "200", "src": ogp.img})
-						]
-					],								
-					[createElem("div", {"class": "blogcard-footer"}),
-						createElem("a", {"href": ogp.domain, "target": "_blank"}),
-							[createElem("img", {"alt": "", "src": "https://www.google.com/s2/favicons?domain={}".replace("{}", ogp.domain)})
+							createElem("div", {"class": "blogcard-image"}),
+								createElem("div", {"class": "blogcard-image-wrapper"}),
+									createElem("a", {"href": ogp.url, "target": "_blank"}),
+										createElem("img", {"alt": "", "height": "132", "width": "200", "src": ogp.img})
+					],
+						createElem("div", {"class": "blogcard-footer"}),
+							[createElem("a", {"href": ogp.domain, "target": "_blank"}),
+								createElem("img", {"alt": "", "src": "https://www.google.com/s2/favicons?domain={}".replace("{}", ogp.domain)})
 							],
-							[createTxtNode(ogp.domain)
-							]
-					]
-			])  // ルートノードから始まる、ツリーにするノードの配列。サムネイル画像サイズは決め打ちしている。
+								createTxtNode(ogp.domain)
+				]) // ルートノードから始まる、ツリーにするノードの配列。サムネイル画像サイズは決め打ちしている。
 	if (!ogp.img) { // OGP画像ないとき。		
 		root.classList.add("blogcard-hasnoimage");  // ルートノードのクラス名を追加。
 		elem = document.evaluate("//div[@class='blogcard-image']", root, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue ;
@@ -62,17 +58,21 @@ const bookmarkletfunc = () => {
 		return elem;  // 要素を返す。
 	}
 	function createTxtNode(txt){return document.createTextNode(txt);}  // テキストノードを返す。
-	function createTree(nodes){  // ノードの配列を受け取って、再帰的に子要素にしてツリーにして返す。
-		return nodes.reverse().reduce((prev, curr) => {
-			if (Array.isArray(prev)){  // 配列のときはまずツリーにする。
-				prev = createTree(prev);
-			} 			
-			if (Array.isArray(curr)){  // 配列のときはまずツリーにする。
-				curr = createTree(curr);
-			} 					
-			curr.appendChild(prev);  // このまま返すと子要素prevが返ってしまう。
-			return curr;  // 親要素を返す。
-			 }); 	
+	function createTree(nodes){  // ノードの配列を受け取って、再帰的に子要素にしてツリーにして返す。二分木しか作れない。[[A,B,C,D],E,F,G]を渡した場合、BとEの親がAとなる。
+		let root;  // ルートを入れる変数。
+		nodes.reduce((prev, curr) => {  // prevが親、currが子。
+					if (Array.isArray(prev)){  // 親が配列のときはまず子のツリーを作る。
+						prev = createTree(prev);  // 配列をツリーにしたルートを取得。
+					} 		
+					if (!root) {  // ルートがまだ取得できていないとき。
+						root = prev;  // 最初のツリーのルートをこのツリーのルートとして取得。
+					}
+					if (Array.isArray(curr)){  // 子が配列のときはまず子のツリーを作る。
+						curr = createTree(curr);  // 配列をツリーにしたルートを取得。
+					} 					
+					return prev.appendChild(curr);  // 子要素currを返す。
+					 }); 			
+		return root  // 木のルートを返す。
 	}
 	function onCopy(ev) {  // イベントリスナー。	
 		html = root.outerHTML;  // ツリーをHTML文字列に変換する。
